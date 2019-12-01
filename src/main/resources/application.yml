@@ -1,0 +1,3 @@
+tesla:
+  api:
+    url: https://owner-api.teslamotors.com

@@ -1,0 +1,7 @@
+{
+  "access_token":"ACCESS_TOKEN_FOR_ALL_API_CALLS",
+  "token_type":"bearer",
+  "expires_in":3888000,
+  "refresh_token":"REFRESH_TOKEN_FOR_REFRESH_API_CALL",
+  "created_at":1571519135
+}

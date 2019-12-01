@@ -1,0 +1,7 @@
+{
+  "client_secret": "abcd",
+  "client_id": "id123",
+  "email": "someone@tesla.com",
+  "password": "password@tesla.com",
+  "grant_type": "password"
+}
