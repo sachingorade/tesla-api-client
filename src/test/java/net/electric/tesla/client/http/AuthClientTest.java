@@ -1,51 +1,55 @@
 package net.electric.tesla.client.http;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import feign.Feign;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 import net.electric.tesla.client.http.model.GetAccessTokenRequest;
 import net.electric.tesla.client.http.model.RevokeAccessTokenRequest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static net.electric.tesla.client.TestUtils.loadResourceAsObject;
 import static net.electric.tesla.client.TestUtils.loadResourceAsString;
 
-@SpringBootTest
-@ExtendWith(SpringExtension.class)
-class AuthClientTest {
+public class AuthClientTest {
 
-    private WireMockServer wireMockServer = new WireMockServer(45678);
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String APPLICATION_JSON_VALUE = "application/json";
+    private static final int STATUS_OK = 200;
 
-    @Autowired
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort());
+
     private AuthClient authClient;
 
-    @BeforeEach
-    void setupServer() {
-        wireMockServer.start();
-        WireMock.configureFor(wireMockServer.port());
-    }
-
-    @AfterEach
-    void stopServer() {
-        wireMockServer.stop();
+    @Before
+    public void setupServer() {
+        authClient = Feign.builder()
+                .encoder(new JacksonEncoder())
+                .decoder(new JacksonDecoder())
+                .target(AuthClient.class, "http://localhost:" + wireMockRule.port());
     }
 
     @Test
-    void testAuthenticateGetAccessTokenRequest() {
-        stubFor(post("/oauth/token")
-            .withHeader(HttpHeaders.CONTENT_TYPE, equalTo(MediaType.APPLICATION_JSON_VALUE))
+    public void testAuthenticateGetAccessTokenRequest() {
+        stubFor(post(urlEqualTo("/oauth/token"))
+            .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON_VALUE))
             .willReturn(WireMock.aResponse()
-                            .withStatus(HttpStatus.OK.value())
-                            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                            .withStatus(STATUS_OK)
+                            .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                             .withBody(loadResourceAsString("mocks/tesla/auth/get-access-token-response-ok.json"))));
 
         GetAccessTokenRequest authRequest = getTestAccessTokenRequest();
@@ -53,7 +57,7 @@ class AuthClientTest {
 
         verify(postRequestedFor(urlMatching("/oauth/token"))
                 .withRequestBody(equalToJson(loadResourceAsString("mocks/tesla/auth/get-access-token-valid-request.json")))
-                .withHeader(HttpHeaders.CONTENT_TYPE, matching(MediaType.APPLICATION_JSON_VALUE)));
+                .withHeader(CONTENT_TYPE, matching(APPLICATION_JSON_VALUE)));
     }
 
     private GetAccessTokenRequest getTestAccessTokenRequest() {
@@ -61,19 +65,19 @@ class AuthClientTest {
     }
 
     @Test
-    void testLogoutRequest() {
-        stubFor(post("/oauth/revoke")
-            .withHeader(HttpHeaders.CONTENT_TYPE, equalTo(MediaType.APPLICATION_JSON_VALUE))
+    public void testLogoutRequest() {
+        stubFor(post(urlEqualTo("/oauth/revoke"))
+            .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON_VALUE))
             .willReturn(WireMock.aResponse()
-                    .withStatus(HttpStatus.OK.value())
-                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)));
+                    .withStatus(STATUS_OK)
+                    .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)));
 
         RevokeAccessTokenRequest request = getTestRevokeAccessTokenRequest();
         authClient.logout(request);
 
         verify(postRequestedFor(urlMatching("/oauth/revoke"))
             .withRequestBody(equalToJson(loadResourceAsString("mocks/tesla/auth/revoke-access-token-request.json")))
-            .withHeader(HttpHeaders.CONTENT_TYPE, matching(MediaType.APPLICATION_JSON_VALUE)));
+            .withHeader(CONTENT_TYPE, matching(APPLICATION_JSON_VALUE)));
     }
 
     private RevokeAccessTokenRequest getTestRevokeAccessTokenRequest() {
