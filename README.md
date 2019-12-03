@@ -1,4 +1,4 @@
-# tesla-api-client [![Build Status](https://travis-ci.com/sachingorade/tesla-api-client.svg?branch=master)](https://travis-ci.com/sachingorade/tesla-api-client)
+# tesla-api-client [![Build Status](https://travis-ci.com/sachingorade/tesla-api-client.svg?branch=master)](https://travis-ci.com/sachingorade/tesla-api-client) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 Unofficial Java client for Tesla API
 
 This is Tesla API client library for Java based projects. As specified above, this is unofficial and is built using 
