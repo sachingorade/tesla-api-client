@@ -1,4 +1,4 @@
-package net.electric.tesla.client.http.model;
+package net.electric.tesla.client.http.request;
 
 public class RevokeAccessTokenRequest {
 

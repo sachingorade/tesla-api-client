@@ -2,9 +2,9 @@ package net.electric.tesla.client.http;
 
 import feign.Headers;
 import feign.RequestLine;
-import net.electric.tesla.client.http.model.GetAccessTokenRequest;
-import net.electric.tesla.client.http.model.GetAccessTokenResponse;
-import net.electric.tesla.client.http.model.RevokeAccessTokenRequest;
+import net.electric.tesla.client.http.request.GetAccessTokenRequest;
+import net.electric.tesla.client.http.response.GetAccessTokenResponse;
+import net.electric.tesla.client.http.request.RevokeAccessTokenRequest;
 
 public interface AuthClient {
 
